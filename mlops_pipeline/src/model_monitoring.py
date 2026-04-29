@@ -6,7 +6,7 @@ import joblib
 from scipy.stats import ks_2samp, chi2_contingency
 from scipy.spatial.distance import jensenshannon
 
-from ft_engineering import preprocess_data
+from mlops_pipeline.src.ft_engineering import preprocess_data
 
 
 # =========================

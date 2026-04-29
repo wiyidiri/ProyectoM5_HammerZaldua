@@ -1,84 +1,72 @@
 import pandas as pd
 import joblib
-
-from ft_engineering import preprocess_data
-from sklearn.pipeline import Pipeline
-from xgboost import XGBClassifier
-
+import os
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
 
 # =========================
-# 1. ENTRENAR Y GUARDAR MODELO
+# INICIALIZAR APP
 # =========================
-def train_and_save_model():
+app = FastAPI(title="Modelo Riesgo Crediticio")
+
+# =========================
+# CARGAR MODELO
+# =========================
+MODEL_PATH = "modelo_xgboost.pkl"
+
+if not os.path.exists(MODEL_PATH):
+    print("⚠️ Modelo no encontrado, entrenando...")
+
+    from mlops_pipeline.src.model_training_evaluation import build_model
+    
+    from mlops_pipeline.src.ft_engineering import preprocess_data
 
     X_train, X_test, y_train, y_test, preprocessor = preprocess_data()
+    model = build_model(preprocessor, X_train, y_train)
 
-    # cálculo de peso
-    neg = (y_train == 0).sum()
-    pos = (y_train == 1).sum()
-    scale = neg / pos
+    joblib.dump(model, MODEL_PATH)
+    print("✅ Modelo entrenado y guardado")
 
-    model = Pipeline([
-        ('preprocessor', preprocessor),
-        ('classifier', XGBClassifier(
-            scale_pos_weight=scale,
-            n_estimators=300,
-            max_depth=5,
-            learning_rate=0.05,
-            subsample=0.8,
-            colsample_bytree=0.8,
-            eval_metric='logloss',
-            random_state=42
-        ))
-    ])
-
-    model.fit(X_train, y_train)
-
-    # guardar modelo
-    joblib.dump(model, 'modelo_xgboost.pkl')
-
-    print("✅ Modelo guardado correctamente")
+else:
+    model = joblib.load(MODEL_PATH)
 
 
 # =========================
-# 2. CARGAR MODELO
+# ESQUEMA DE ENTRADA
 # =========================
-def load_model():
-    model = joblib.load('modelo_xgboost.pkl')
-    return model
-
-
-# =========================
-# 3. PREDICCIÓN
-# =========================
-def predict(model, new_data, threshold=0.5):
-
-    prob = model.predict_proba(new_data)[:, 1]
-    pred = (prob >= threshold).astype(int)
-
-    return pred, prob
+class Cliente(BaseModel):
+    data: dict
 
 
 # =========================
-# 4. EJECUCIÓN
+# ENDPOINT DE PRUEBA
 # =========================
-if __name__ == "__main__":
+@app.get("/")
+def home():
+    return {"mensaje": "API de predicción activa"}
 
-    # entrenar y guardar
-    train_and_save_model()
 
-    # cargar modelo
-    model = load_model()
+# =========================
+# PREDICCIÓN (BATCH)
+# =========================
+@app.post("/predict")
+def predict(clientes: List[Cliente]):
 
-    # ejemplo con nuevos datos (simulación)
-    X_train, X_test, y_train, y_test, preprocessor = preprocess_data()
+    # convertir a DataFrame
+    data = [c.data for c in clientes]
+    df = pd.DataFrame(data)
 
-    sample = X_test.iloc[:5]
+    # predicción
+    prob = model.predict_proba(df)[:, 1]
+    pred = (prob >= 0.5).astype(int)
 
-    pred, prob = predict(model, sample, threshold=0.5)
+    result = []
 
-    print("\n📊 Predicciones:")
-    print(pred)
+    for i in range(len(df)):
+        result.append({
+            "prediccion": int(pred[i]),
+            "probabilidad": float(prob[i])
+        })
 
-    print("\n📊 Probabilidades:")
-    print(prob)
+    return {"resultados": result}

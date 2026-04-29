@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from ft_engineering import preprocess_data
+from mlops_pipeline.src.ft_engineering import preprocess_data
 
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
