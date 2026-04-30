@@ -2,18 +2,19 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import os
 
 from scipy.stats import ks_2samp, chi2_contingency
 from scipy.spatial.distance import jensenshannon
 
-from mlops_pipeline.src.ft_engineering import preprocess_data
+from ft_engineering import preprocess_data
 
 
 # =========================
 # CONFIG STREAMLIT
 # =========================
 st.set_page_config(page_title="Monitoring Modelo Crédito", layout="wide")
-st.title("📊 Monitoreo de Modelo de Riesgo Crediticio")
+st.title("Monitoreo de Modelo de Riesgo Crediticio")
 
 
 # =========================
@@ -21,7 +22,11 @@ st.title("📊 Monitoreo de Modelo de Riesgo Crediticio")
 # =========================
 @st.cache_resource
 def load_model():
-    return joblib.load("modelo_xgboost.pkl")
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+    model_path = os.path.join(BASE_DIR, "modelo_xgboost.pkl")
+
+    return joblib.load(model_path)
 
 model = load_model()
 
@@ -181,7 +186,7 @@ new_data = X_test.sample(sample_size, random_state=42)
 # =========================
 # PREDICCIONES
 # =========================
-st.subheader("📌 Predicciones")
+st.subheader(" Predicciones")
 
 df_pred = generate_predictions(model, new_data, threshold)
 
@@ -191,7 +196,7 @@ st.dataframe(df_pred.head(20))
 # =========================
 # MÉTRICAS
 # =========================
-st.subheader("📈 Métricas")
+st.subheader("Métricas")
 
 col1, col2, col3 = st.columns(3)
 
@@ -203,7 +208,7 @@ col3.metric("Registros", len(df_pred))
 # =========================
 # DISTRIBUCIÓN
 # =========================
-st.subheader("📊 Distribución Probabilidades")
+st.subheader(" Distribución Probabilidades")
 
 st.bar_chart(df_pred["probabilidad"])
 
@@ -211,7 +216,7 @@ st.bar_chart(df_pred["probabilidad"])
 # =========================
 # DRIFT
 # =========================
-st.subheader("🚨 Data Drift")
+st.subheader(" Data Drift")
 
 drift = monitor(X_train, new_data)
 
@@ -221,19 +226,19 @@ st.dataframe(drift)
 # =========================
 # ALERTAS
 # =========================
-st.subheader("⚠️ Alertas")
+st.subheader(" Alertas")
 
 psi_alert = drift[drift["PSI"] > 0.25]
 
 if len(psi_alert) > 0:
-    st.error("🚨 Drift fuerte detectado")
+    st.error(" Drift fuerte detectado")
     st.dataframe(psi_alert)
 else:
-    st.success("✅ Sin drift significativo")
+    st.success(" Sin drift significativo")
 
 
 # =========================
 # FOOTER
 # =========================
 st.markdown("---")
-st.markdown("Dashboard de monitoreo de modelo 🚀")
+st.markdown("Dashboard de monitoreo de modelo ")

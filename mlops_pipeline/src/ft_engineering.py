@@ -1,3 +1,4 @@
+
 import pandas as pd
 import numpy as np
 import os
@@ -19,7 +20,7 @@ def load_data():
 
     df = pd.read_excel(file_path)
 
-    print("✅ Datos cargados correctamente")
+    print(" Datos cargados correctamente")
     print("Shape original:", df.shape)
 
     return df
@@ -106,13 +107,13 @@ def build_pipeline(X):
 # 5. FUNCIÓN PRINCIPAL
 # =========================
 def preprocess_data():
-
+    print("1️ Cargando datos...")
     df = load_data()
 
     df = clean_data(df)
     df = feature_engineering(df)
 
-    print("✅ Datos procesados")
+    print(" Datos procesados")
     print("Shape después de limpieza:", df.shape)
 
     TARGET = 'Pago_atiempo'
@@ -120,7 +121,7 @@ def preprocess_data():
     X = df.drop(TARGET, axis=1)
     y = df[TARGET]
 
-    print("✅ Variables separadas")
+    print(" Variables separadas")
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y,
@@ -129,8 +130,10 @@ def preprocess_data():
         stratify=y
     )
 
-    print("✅ Split realizado")
+    print(" Split realizado")
 
     preprocessor = build_pipeline(X_train)
+
+    print(" Pipeline construido")
 
     return X_train, X_test, y_train, y_test, preprocessor
