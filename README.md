@@ -27,7 +27,7 @@ ProyectoM5_HammerZaldua/
 ├── Dockerfile
 ├── .dockerignore
 ├── README.md
-![Estructura proyecto](imagenes/estructura.png)
+![Estructura proyecto](imagenes/Estructura.png)
 ## 3. Avance 1: Carga y Exploración de Datos (EDA)
 
 El objetivo de esta fase fue comprender la estructura, calidad y comportamiento del dataset.
@@ -143,12 +143,15 @@ Captura relaciones no lineales
 Mayor capacidad de generalización
 
 Resultados observados:
+
 ![TABLA RESUMEN](imagenes/THRESHOLD.png)
+
 ROC-AUC ligeramente superior a RandomForest (~0.63)
 Mejor manejo de relaciones complejas
-Sin embargo, sigue afectado por el desbalance de clases
+
 ![Modelos Analisis](imagenes/modelos_metricas.png)
-Hallazgos como:La eliminación de data leakage redujo el desempeño aparente del modelo, pero lo hizo más realista se prefirio tomar dicha alternativa y ajustar desempeño con threshold determinando valores mayores a 0.5 prediciones mas acertadas a clientes morosos.Threshold bajo (0.2):↑ Recall (detecta más riesgo)↓ Precision (más falsos positivos) y en Threshold alto (0.7):↓ Recall ↑ Precision
+
+Sin embargo, sigue afectado por el desbalance de clases - Hallazgos como:La eliminación de data leakage redujo el desempeño aparente del modelo, pero lo hizo más realista se prefirio tomar dicha alternativa y ajustar desempeño con threshold determinando valores mayores a 0.5 prediciones mas acertadas a clientes morosos.Threshold bajo (0.2):↑ Recall (detecta más riesgo)↓ Precision (más falsos positivos) y en Threshold alto (0.7):↓ Recall ↑ Precision
 
 El desbalance de clases es el principal limitante del modelo
 Las variables financieras (deuda, ingreso, cuota) son las más relevantes
