@@ -16,7 +16,7 @@ app = FastAPI(title="Modelo Riesgo Crediticio")
 MODEL_PATH = "modelo_xgboost.pkl"
 
 if not os.path.exists(MODEL_PATH):
-    print("⚠️ Modelo no encontrado, entrenando...")
+    print(" Modelo no encontrado, entrenando...")
 
     from mlops_pipeline.src.model_training_evaluation import build_model
     
@@ -26,7 +26,7 @@ if not os.path.exists(MODEL_PATH):
     model = build_model(preprocessor, X_train, y_train)
 
     joblib.dump(model, MODEL_PATH)
-    print("✅ Modelo entrenado y guardado")
+    print(" Modelo entrenado y guardado")
 
 else:
     model = joblib.load(MODEL_PATH)

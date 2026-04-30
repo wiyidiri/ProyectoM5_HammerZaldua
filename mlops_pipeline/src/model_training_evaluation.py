@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
-
+import joblib
+import os
 from mlops_pipeline.src.ft_engineering import preprocess_data
 
 from sklearn.pipeline import Pipeline
@@ -27,15 +28,15 @@ def build_model(model, X_train, y_train):
 
 def summarize_classification(name, y_true, y_pred, y_prob, threshold):
 
-    print(f"\n📊 --- {name} | Threshold {threshold} ---")
+    print(f"\n --- {name} | Threshold {threshold} ---")
     print(confusion_matrix(y_true, y_pred))
     print(classification_report(y_true, y_pred))
 
     roc = roc_auc_score(y_true, y_prob)
     recall_0 = recall_score(y_true, y_pred, pos_label=0)
 
-    print(f"🎯 ROC-AUC: {roc:.4f}")
-    print(f"🔥 Recall clase 0: {recall_0:.4f}")
+    print(f" ROC-AUC: {roc:.4f}")
+    print(f" Recall clase 0: {recall_0:.4f}")
 
     return roc, recall_0
 
@@ -45,7 +46,7 @@ def summarize_classification(name, y_true, y_pred, y_prob, threshold):
 # =========================
 X_train, X_test, y_train, y_test, preprocessor = preprocess_data()
 
-print("✅ Datos listos")
+print(" Datos listos")
 
 
 # =========================
@@ -89,7 +90,7 @@ xgb_model = Pipeline([
 rf_model = build_model(rf_model, X_train, y_train)
 xgb_model = build_model(xgb_model, X_train, y_train)
 
-print("✅ Modelos entrenados")
+print(" Modelos entrenados")
 
 
 # =========================
@@ -144,7 +145,7 @@ for t in thresholds:
 # =========================
 results = pd.DataFrame(results_list)
 
-print("\n📋 TABLA RESUMEN")
+print("\n TABLA RESUMEN")
 print(results)
 
 
@@ -164,3 +165,13 @@ plt.legend()
 plt.grid()
 
 plt.show()
+# =========================
+# GUARDAR MODELO
+# =========================
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+model_path = os.path.join(BASE_DIR, "modelo_xgboost.pkl")
+
+joblib.dump(xgb_model, model_path)
+
+print(f" Modelo XGBoost guardado en: {model_path}")
